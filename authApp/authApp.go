@@ -21,13 +21,11 @@ func Start() {
 	dbClient := getDbClient()
 
 	authRepoDb := domain.NewAuthRepoDb(dbClient)
-	authHandler := AuthHandler{
-		service.NewAuthRepoDb(authRepoDb),
-	}
+	authHandler := AuthHandler{service.NewAuthRepoDb(authRepoDb)}
 
-	router.HandleFunc("auth/login", authHandler.Login).Methods(http.MethodPost)
-	router.HandleFunc("auth/register", authHandler.Register).Methods(http.MethodPost)
-	router.HandleFunc("auth/verify", authHandler.Verify).Methods(http.MethodPost)
+	router.HandleFunc("/auth/login", authHandler.Login).Methods(http.MethodPost)
+	router.HandleFunc("/auth/register", authHandler.Register).Methods(http.MethodPost)
+	router.HandleFunc("/auth/verify", authHandler.Verify).Methods(http.MethodPost)
 
 	address := os.Getenv("SERVER_ADDRESS")
 	port := os.Getenv("SERVER_PORT")
@@ -39,17 +37,17 @@ func Start() {
 
 func sanityCheck() {
 	if os.Getenv("SERVER_ADDRESS") == "" || os.Getenv("SERVER_PORT") == "" {
-		log.Fatal("Missing env variable ")
+		log.Fatal("Missing env variable")
 	}
 }
 
 func getDbClient() *sqlx.DB {
 
-	user := os.Getenv("DB_USER")
-	pass := os.Getenv("DB_PASS")
-	schema := os.Getenv("DB_SCHEMA")
+	dbUser := os.Getenv("DB_USER")
+	dbPass := os.Getenv("DB_PASS")
+	dbSchema := os.Getenv("DB_SCHEMA")
 
-	client, err := sqlx.Open("mysql", fmt.Sprintf("%s:%s@/%s", user, pass, schema))
+	client, err := sqlx.Open("mysql", fmt.Sprintf("%s:%s@/%s", dbUser, dbPass, dbSchema))
 
 	if err != nil {
 		fmt.Println("Unable to connect to DB")
