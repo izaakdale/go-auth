@@ -6,8 +6,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/izaakdale/auth/dto"
-	"github.com/izaakdale/auth/service"
+	"github.com/izaakdale/go-auth/dto"
+	"github.com/izaakdale/go-auth/service"
 )
 
 type AuthHandler struct {
@@ -16,7 +16,6 @@ type AuthHandler struct {
 
 func (authHandler AuthHandler) Login(writer http.ResponseWriter, request *http.Request) {
 
-	log.Println("Reaching login")
 	var loginRequest dto.LoginRequest
 	if err := json.NewDecoder(request.Body).Decode(&loginRequest); err != nil {
 		log.Println("Error decoding login request")
@@ -27,7 +26,8 @@ func (authHandler AuthHandler) Login(writer http.ResponseWriter, request *http.R
 			writer.WriteHeader(http.StatusUnauthorized)
 			fmt.Fprintf(writer, err.Error())
 		} else {
-			fmt.Fprintf(writer, *token)
+
+			json.NewEncoder(writer).Encode(dto.TokenResponse{Token: *token})
 		}
 	}
 }

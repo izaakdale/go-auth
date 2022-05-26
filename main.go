@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/izaakdale/auth/authApp"
+	"github.com/izaakdale/go-auth/authApp"
 )
 
 func main() {

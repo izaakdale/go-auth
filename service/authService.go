@@ -1,8 +1,8 @@
 package service
 
 import (
-	"github.com/izaakdale/auth/domain"
-	"github.com/izaakdale/auth/dto"
+	"github.com/izaakdale/go-auth/domain"
+	"github.com/izaakdale/go-auth/dto"
 )
 
 type AuthService interface {
@@ -10,7 +10,7 @@ type AuthService interface {
 }
 
 type DefaultAuthService struct {
-	repo domain.AuthRepo
+	repo domain.AuthRepoDb
 }
 
 func (authService DefaultAuthService) Login(request dto.LoginRequest) (*string, error) {
@@ -24,7 +24,7 @@ func (authService DefaultAuthService) Login(request dto.LoginRequest) (*string, 
 	return claims, nil
 }
 
-func NewAuthRepoDb(repo domain.AuthRepo) DefaultAuthService {
+func NewAuthRepoDb(repo domain.AuthRepoDb) DefaultAuthService {
 	return DefaultAuthService{
 		repo,
 	}

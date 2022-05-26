@@ -9,8 +9,8 @@ import (
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
-	"github.com/izaakdale/auth/domain"
-	"github.com/izaakdale/auth/service"
+	"github.com/izaakdale/go-auth/domain"
+	"github.com/izaakdale/go-auth/service"
 	"github.com/jmoiron/sqlx"
 )
 

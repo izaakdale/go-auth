@@ -1,4 +1,4 @@
-module github.com/izaakdale/auth
+module github.com/izaakdale/go-auth
 
 go 1.18
 
