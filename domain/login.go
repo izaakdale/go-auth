@@ -32,7 +32,7 @@ func (login Login) GenerateToken() (*string, error) {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	signedTokenStr, err := token.SignedString([]byte(os.Getenv("HMAC_SIGNED_SECRET")))
+	signedTokenStr, err := token.SignedString([]byte(os.Getenv("HMAC_SERVER_SECRET")))
 	if err != nil {
 		log.Printf("Error signing token with env secret " + err.Error())
 		return nil, errors.New("Token generate failed")

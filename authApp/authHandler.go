@@ -35,10 +35,22 @@ func (authHandler AuthHandler) Login(writer http.ResponseWriter, request *http.R
 func (authHandler AuthHandler) Register(writer http.ResponseWriter, request *http.Request) {
 
 	// register functionality
-	log.Println("Reaching register")
 }
 
 func (authHandler AuthHandler) Verify(writer http.ResponseWriter, request *http.Request) {
 
-	// verify functionality
+	urlParams := make(map[string]string)
+
+	for k := range request.Header {
+		urlParams[k] = request.Header.Get(k)
+	}
+
+	if urlParams["Authorization"] != "" {
+		verified, err := authHandler.service.Verify(urlParams)
+		if err != nil {
+			log.Println("Error verifying in service " + err.Error())
+		}
+		log.Println(verified)
+	}
+
 }

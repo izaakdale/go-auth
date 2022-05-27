@@ -21,7 +21,9 @@ func Start() {
 	dbClient := getDbClient()
 
 	authRepoDb := domain.NewAuthRepoDb(dbClient)
-	authHandler := AuthHandler{service.NewAuthRepoDb(authRepoDb)}
+	authHandler := AuthHandler{
+		service.NewAuthRepoDb(authRepoDb),
+	}
 
 	router.HandleFunc("/auth/login", authHandler.Login).Methods(http.MethodPost)
 	router.HandleFunc("/auth/register", authHandler.Register).Methods(http.MethodPost)
