@@ -2,13 +2,13 @@ package domain
 
 import (
 	"database/sql"
-	"errors"
-	"log"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/izaakdale/utils-go/logger"
+	"github.com/izaakdale/utils-go/response"
 )
 
 const TOKEN_DURATION = time.Hour
@@ -20,7 +20,7 @@ type Login struct {
 	Role       string         `db:"role"`
 }
 
-func (login Login) GenerateToken() (*string, error) {
+func (login Login) GenerateToken() (*string, *response.ErrorReponse) {
 
 	// define a map of type string to interface, meaning you can define keys to store whatever
 	var claims jwt.MapClaims
@@ -34,8 +34,8 @@ func (login Login) GenerateToken() (*string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signedTokenStr, err := token.SignedString([]byte(os.Getenv("HMAC_SERVER_SECRET")))
 	if err != nil {
-		log.Printf("Error signing token with env secret " + err.Error())
-		return nil, errors.New("Token generate failed")
+		logger.Error("Error signing token with env secret " + err.Error())
+		return nil, response.NewUnexpectedError("Token generate failed")
 	}
 	return &signedTokenStr, nil
 }

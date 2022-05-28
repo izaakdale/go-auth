@@ -2,12 +2,12 @@ package authApp
 
 import (
 	"encoding/json"
-	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/izaakdale/go-auth/dto"
 	"github.com/izaakdale/go-auth/service"
+	"github.com/izaakdale/utils-go/logger"
+	"github.com/izaakdale/utils-go/response"
 )
 
 type AuthHandler struct {
@@ -18,21 +18,24 @@ func (authHandler AuthHandler) Login(writer http.ResponseWriter, request *http.R
 
 	var loginRequest dto.LoginRequest
 	if err := json.NewDecoder(request.Body).Decode(&loginRequest); err != nil {
-		log.Println("Error decoding login request")
-		writer.WriteHeader(http.StatusBadRequest)
+		logger.Error("Error decoding login request")
+		response.WriteJson(writer, http.StatusBadRequest, nil)
 	} else {
 		token, err := authHandler.service.Login(loginRequest)
 		if err != nil {
-			writer.WriteHeader(http.StatusUnauthorized)
-			fmt.Fprintf(writer, err.Error())
+			logger.Error("Error logging in")
+			err := response.ErrorReponse{
+				Code:    http.StatusUnauthorized,
+				Message: "Invalid credentials",
+			}
+			response.WriteJson(writer, err.Code, err.AsMessage())
 		} else {
-			json.NewEncoder(writer).Encode(dto.TokenResponse{Token: *token})
+			response.WriteJson(writer, http.StatusOK, dto.TokenResponse{Token: *token})
 		}
 	}
 }
 
 func (authHandler AuthHandler) Register(writer http.ResponseWriter, request *http.Request) {
-
 	// register functionality
 }
 
@@ -47,9 +50,9 @@ func (authHandler AuthHandler) Verify(writer http.ResponseWriter, request *http.
 	if urlParams["token"] != "" {
 		verified, err := authHandler.service.Verify(urlParams)
 		if err != nil {
-			log.Println("Error verifying in service " + err.Error())
+			logger.Error("Error verifying in service ")
 		}
-		json.NewEncoder(writer).Encode(dto.VerifyReponse{
+		response.WriteJson(writer, http.StatusOK, dto.VerifyReponse{
 			IsAuthorized: verified,
 		})
 	}

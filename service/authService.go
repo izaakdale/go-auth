@@ -1,17 +1,18 @@
 package service
 
 import (
-	"log"
 	"os"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/izaakdale/go-auth/domain"
 	"github.com/izaakdale/go-auth/dto"
+	"github.com/izaakdale/utils-go/logger"
+	"github.com/izaakdale/utils-go/response"
 )
 
 type AuthService interface {
-	Login(request dto.LoginRequest) (*string, error)
-	Verify(urlParams map[string]string) (bool, error)
+	Login(request dto.LoginRequest) (*string, *response.ErrorReponse)
+	Verify(urlParams map[string]string) (bool, *response.ErrorReponse)
 }
 type DefaultAuthService struct {
 	repo            domain.AuthRepoDb
@@ -25,10 +26,11 @@ func NewAuthRepoDb(repo domain.AuthRepoDb) DefaultAuthService {
 	}
 }
 
-func (authService DefaultAuthService) Login(request dto.LoginRequest) (*string, error) {
+func (authService DefaultAuthService) Login(request dto.LoginRequest) (*string, *response.ErrorReponse) {
 
 	login, err := authService.repo.FindBy(request.Username, request.Password)
 	if err != nil {
+		logger.Error("Error logging in with username and password: " + err.Message)
 		return nil, err
 	}
 	claims, err := login.GenerateToken()
@@ -36,7 +38,7 @@ func (authService DefaultAuthService) Login(request dto.LoginRequest) (*string, 
 	return claims, nil
 }
 
-func (authService DefaultAuthService) Verify(urlParams map[string]string) (bool, error) {
+func (authService DefaultAuthService) Verify(urlParams map[string]string) (bool, *response.ErrorReponse) {
 
 	if jwtToken, err := jwtTokenFromString(urlParams["token"]); err != nil {
 		return false, err
@@ -46,33 +48,31 @@ func (authService DefaultAuthService) Verify(urlParams map[string]string) (bool,
 
 			if claims.IsUserRole() {
 				if !claims.IsValidUserRequest(urlParams) {
-					// IzDa make error here
-					return false, nil
+					return false, response.NewValidationError("Invalid request")
 				}
 			}
 
 			// check permisions
 			if !authService.rolePermissions.IsAuthorizedFor(claims.Role, urlParams["routeName"]) {
-				// IzDa make error here
-				return false, nil
+				return false, response.NewValidationError("Unauthorized")
 			}
 
 		} else {
-			log.Println("Invalid token")
+			logger.Error("Invalid token")
 		}
 	}
 
 	return true, nil
 }
 
-func jwtTokenFromString(tokenString string) (*jwt.Token, error) {
+func jwtTokenFromString(tokenString string) (*jwt.Token, *response.ErrorReponse) {
 
 	token, err := jwt.ParseWithClaims(tokenString, &domain.AccessTokenClaims{}, func(t *jwt.Token) (interface{}, error) {
 		return []byte(os.Getenv("HMAC_SERVER_SECRET")), nil
 	})
 	if err != nil {
-		log.Println("Error parsing token: " + err.Error())
-		return nil, err
+		logger.Error("Error parsing token: " + err.Error())
+		return nil, response.NewValidationError("Invalid token")
 	}
 	return token, nil
 }

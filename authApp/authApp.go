@@ -11,6 +11,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/izaakdale/go-auth/domain"
 	"github.com/izaakdale/go-auth/service"
+	"github.com/izaakdale/utils-go/logger"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -32,7 +33,7 @@ func Start() {
 	address := os.Getenv("SERVER_ADDRESS")
 	port := os.Getenv("SERVER_PORT")
 
-	log.Println("Starting the auth server")
+	logger.Info("Starting the auth server")
 	log.Fatal(http.ListenAndServe(fmt.Sprintf("%s:%s", address, port), router))
 
 }
@@ -52,7 +53,7 @@ func getDbClient() *sqlx.DB {
 	client, err := sqlx.Open("mysql", fmt.Sprintf("%s:%s@/%s", dbUser, dbPass, dbSchema))
 
 	if err != nil {
-		fmt.Println("Unable to connect to DB")
+		logger.Error("Unable to connect to DB")
 		panic(err)
 	}
 

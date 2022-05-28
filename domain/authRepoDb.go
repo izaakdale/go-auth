@@ -2,9 +2,9 @@ package domain
 
 import (
 	"database/sql"
-	"errors"
 	"log"
 
+	"github.com/izaakdale/utils-go/response"
 	"github.com/jmoiron/sqlx"
 )
 
@@ -17,7 +17,7 @@ func NewAuthRepoDb(dbClient *sqlx.DB) AuthRepoDb {
 		client: *dbClient,
 	}
 }
-func (authRepoDb AuthRepoDb) FindBy(username string, password string) (*Login, error) {
+func (authRepoDb AuthRepoDb) FindBy(username string, password string) (*Login, *response.ErrorReponse) {
 
 	var login Login
 
@@ -29,10 +29,10 @@ func (authRepoDb AuthRepoDb) FindBy(username string, password string) (*Login, e
 	err := authRepoDb.client.Get(&login, sqlQuery, username, password)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, errors.New("Invalid Credentials")
+			return nil, response.NewValidationError("Invalid credentials")
 		} else {
 			log.Println("Error while verifying login request " + err.Error())
-			return nil, errors.New("Unexpected DB Error")
+			return nil, response.NewUnexpectedError("Unexpected DB Error")
 		}
 	}
 	return &login, nil
