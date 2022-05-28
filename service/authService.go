@@ -3,7 +3,6 @@ package service
 import (
 	"log"
 	"os"
-	"strings"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/izaakdale/go-auth/domain"
@@ -15,12 +14,14 @@ type AuthService interface {
 	Verify(urlParams map[string]string) (bool, error)
 }
 type DefaultAuthService struct {
-	repo domain.AuthRepoDb
+	repo            domain.AuthRepoDb
+	rolePermissions domain.RolePermissions
 }
 
 func NewAuthRepoDb(repo domain.AuthRepoDb) DefaultAuthService {
 	return DefaultAuthService{
 		repo,
+		domain.GetRolePermissions(),
 	}
 }
 
@@ -37,13 +38,24 @@ func (authService DefaultAuthService) Login(request dto.LoginRequest) (*string, 
 
 func (authService DefaultAuthService) Verify(urlParams map[string]string) (bool, error) {
 
-	if jwtToken, err := jwtTokenFromString(urlParams["Authorization"]); err != nil {
+	if jwtToken, err := jwtTokenFromString(urlParams["token"]); err != nil {
 		return false, err
 	} else {
 		if jwtToken.Valid {
 			claims := jwtToken.Claims.(*domain.AccessTokenClaims)
 
-			log.Println(claims.Role)
+			if claims.IsUserRole() {
+				if !claims.IsValidUserRequest(urlParams) {
+					// IzDa make error here
+					return false, nil
+				}
+			}
+
+			// check permisions
+			if !authService.rolePermissions.IsAuthorizedFor(claims.Role, urlParams["routeName"]) {
+				// IzDa make error here
+				return false, nil
+			}
 
 		} else {
 			log.Println("Invalid token")
@@ -53,10 +65,7 @@ func (authService DefaultAuthService) Verify(urlParams map[string]string) (bool,
 	return true, nil
 }
 
-func jwtTokenFromString(fullString string) (*jwt.Token, error) {
-
-	splitString := strings.Split(fullString, "Bearer ")
-	tokenString := splitString[1]
+func jwtTokenFromString(tokenString string) (*jwt.Token, error) {
 
 	token, err := jwt.ParseWithClaims(tokenString, &domain.AccessTokenClaims{}, func(t *jwt.Token) (interface{}, error) {
 		return []byte(os.Getenv("HMAC_SERVER_SECRET")), nil

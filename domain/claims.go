@@ -20,15 +20,27 @@ type AccessTokenClaims struct {
 	jwt.StandardClaims
 }
 
-func BuildClaimsFromJwt(mapClaims jwt.MapClaims) (*Claims, error) {
-	// bytes, err := json.Marshal(mapClaims)
-	// if err != nil {
-	// 	fmt.Println("Error marshalling jwt map claims")
-	// 	return nil, err
-	// }
+func (atc AccessTokenClaims) IsUserRole() bool {
+	return atc.Role == "user"
+}
 
-	// return &Claims{
-	// 	CustomerId: ,
-	// }, nil
-	return nil, nil
+func (atc AccessTokenClaims) IsValidUserRequest(urlParams map[string]string) bool {
+	return atc.IsUserCustomerIdValid(urlParams["customer_Id"]) && atc.IsAccountIdValid(urlParams["account_id"])
+}
+
+func (atc AccessTokenClaims) IsUserCustomerIdValid(urlParamCustomerId string) bool {
+	return atc.CustomerId != urlParamCustomerId
+}
+
+func (atc AccessTokenClaims) IsAccountIdValid(urlParamAccountId string) bool {
+	// check that claims account id list matches the url request account id
+	if urlParamAccountId != "" {
+		// don't need key just string value
+		for _, a := range atc.Accounts {
+			if a == urlParamAccountId {
+				return true
+			}
+		}
+	}
+	return false
 }

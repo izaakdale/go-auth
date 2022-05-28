@@ -26,7 +26,6 @@ func (authHandler AuthHandler) Login(writer http.ResponseWriter, request *http.R
 			writer.WriteHeader(http.StatusUnauthorized)
 			fmt.Fprintf(writer, err.Error())
 		} else {
-
 			json.NewEncoder(writer).Encode(dto.TokenResponse{Token: *token})
 		}
 	}
@@ -41,16 +40,18 @@ func (authHandler AuthHandler) Verify(writer http.ResponseWriter, request *http.
 
 	urlParams := make(map[string]string)
 
-	for k := range request.Header {
-		urlParams[k] = request.Header.Get(k)
+	for k := range request.URL.Query() {
+		urlParams[k] = request.URL.Query().Get(k)
 	}
 
-	if urlParams["Authorization"] != "" {
+	if urlParams["token"] != "" {
 		verified, err := authHandler.service.Verify(urlParams)
 		if err != nil {
 			log.Println("Error verifying in service " + err.Error())
 		}
-		log.Println(verified)
+		json.NewEncoder(writer).Encode(dto.VerifyReponse{
+			IsAuthorized: verified,
+		})
 	}
 
 }
