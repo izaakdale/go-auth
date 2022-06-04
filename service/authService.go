@@ -12,7 +12,7 @@ import (
 )
 
 type AuthService interface {
-	Login(request dto.LoginRequest) (*string, *response.ErrorReponse)
+	Login(request dto.LoginRequest) (*dto.LoginResponse, *response.ErrorReponse)
 	Verify(urlParams map[string]string) *response.ErrorReponse
 }
 type DefaultAuthService struct {
@@ -27,16 +27,25 @@ func NewAuthRepoDb(repo domain.AuthRepoDb) DefaultAuthService {
 	}
 }
 
-func (authService DefaultAuthService) Login(request dto.LoginRequest) (*string, *response.ErrorReponse) {
+func (authService DefaultAuthService) Login(request dto.LoginRequest) (*dto.LoginResponse, *response.ErrorReponse) {
 
-	login, err := authService.repo.FindBy(request.Username, request.Password)
-	if err != nil {
+	var login *domain.Login
+	var err *response.ErrorReponse
+
+	if login, err = authService.repo.FindBy(request.Username, request.Password); err != nil {
 		logger.Error("Error logging in with username and password: " + err.Message)
 		return nil, err
 	}
-	claims, err := login.GenerateToken()
 
-	return claims, nil
+	claims := login.ClaimsForAccessToken()
+	authToken := domain.NewAuthToken(claims)
+
+	var accessToken string
+	if accessToken, err = authToken.NewAccessToken(); err != nil {
+		return nil, err
+	}
+
+	return &dto.LoginResponse{AccessToken: accessToken}, nil
 }
 
 func (authService DefaultAuthService) Verify(urlParams map[string]string) *response.ErrorReponse {

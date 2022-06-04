@@ -25,7 +25,7 @@ func (authHandler AuthHandler) Login(writer http.ResponseWriter, request *http.R
 		if err != nil {
 			response.WriteJson(writer, err.Code, err.AsMessage())
 		} else {
-			response.WriteJson(writer, http.StatusOK, dto.TokenResponse{Token: *token})
+			response.WriteJson(writer, http.StatusOK, dto.LoginResponse{AccessToken: token.AccessToken})
 		}
 	}
 }
