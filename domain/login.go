@@ -8,8 +8,6 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-const TOKEN_DURATION = time.Hour
-
 type Login struct {
 	Username   string         `db:"username"`
 	CustomerId sql.NullString `db:"customer_id"`
@@ -33,7 +31,7 @@ func (login Login) claimsForUser() AccessTokenClaims {
 		Accounts:   accounts,
 		Role:       login.Role,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(TOKEN_DURATION).Unix(),
+			ExpiresAt: time.Now().Add(ACCESS_TOKEN_DURATION).Unix(),
 		},
 	}
 }
@@ -42,7 +40,7 @@ func (login Login) claimsForAdmin() AccessTokenClaims {
 		Role:     login.Role,
 		Username: login.Username,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(TOKEN_DURATION).Unix(),
+			ExpiresAt: time.Now().Add(ACCESS_TOKEN_DURATION).Unix(),
 		},
 	}
 }

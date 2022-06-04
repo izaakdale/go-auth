@@ -21,11 +21,11 @@ func (authHandler AuthHandler) Login(writer http.ResponseWriter, request *http.R
 		logger.Error("Error decoding login request")
 		response.WriteJson(writer, http.StatusBadRequest, nil)
 	} else {
-		token, err := authHandler.service.Login(loginRequest)
+		loginResponse, err := authHandler.service.Login(loginRequest)
 		if err != nil {
 			response.WriteJson(writer, err.Code, err.AsMessage())
 		} else {
-			response.WriteJson(writer, http.StatusOK, dto.LoginResponse{AccessToken: token.AccessToken})
+			response.WriteJson(writer, http.StatusOK, loginResponse)
 		}
 	}
 }

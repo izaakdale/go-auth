@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 
+	"github.com/izaakdale/utils-go/logger"
 	"github.com/izaakdale/utils-go/response"
 	"github.com/jmoiron/sqlx"
 )
@@ -36,4 +37,23 @@ func (authRepoDb AuthRepoDb) FindBy(username string, password string) (*Login, *
 		}
 	}
 	return &login, nil
+}
+
+func (authRepoDb AuthRepoDb) GenerateAndSaveRefreshToken(authT AuthToken) (string, *response.ErrorReponse) {
+	var refreshToken string
+	var err *response.ErrorReponse
+
+	if refreshToken, err = authT.newRefreshToken(); err != nil {
+		return "", err
+	}
+
+	sqlStatement := "INSERT INTO refresh_token_store (refresh_token) values (?)"
+	_, sqlErr := authRepoDb.client.Exec(sqlStatement, refreshToken)
+
+	if sqlErr != nil {
+		logger.Error("Unexpected DB Error: " + sqlErr.Error())
+		return "", response.NewUnexpectedError("Unexpected DB Error")
+	}
+	return refreshToken, nil
+
 }

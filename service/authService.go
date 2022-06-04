@@ -45,7 +45,14 @@ func (authService DefaultAuthService) Login(request dto.LoginRequest) (*dto.Logi
 		return nil, err
 	}
 
-	return &dto.LoginResponse{AccessToken: accessToken}, nil
+	refreshToken, err := authService.repo.GenerateAndSaveRefreshToken(authToken)
+	if err != nil {
+		return nil, err
+	}
+	return &dto.LoginResponse{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}, nil
 }
 
 func (authService DefaultAuthService) Verify(urlParams map[string]string) *response.ErrorReponse {

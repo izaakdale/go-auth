@@ -1,10 +1,24 @@
 package domain
 
 import (
+	"time"
+
 	"github.com/dgrijalva/jwt-go"
 )
 
+const ACCESS_TOKEN_DURATION = time.Hour
+const REFRESH_TOKEN_DURATION = time.Hour * 24 * 28
+
 type AccessTokenClaims struct {
+	CustomerId string   `json:"customer_id"`
+	Accounts   []string `json:"accounts"`
+	Username   string   `json:"username"`
+	Role       string   `json:"role"`
+	jwt.StandardClaims
+}
+
+type RefreshTokenClaims struct {
+	TokenType  string   `json:"token_type"`
 	CustomerId string   `json:"customer_id"`
 	Accounts   []string `json:"accounts"`
 	Username   string   `json:"username"`
@@ -35,4 +49,17 @@ func (atc AccessTokenClaims) IsAccountIdValid(urlParamAccountId string) bool {
 		}
 	}
 	return false
+}
+
+func (c AccessTokenClaims) RefreshTokenClaims() RefreshTokenClaims {
+	return RefreshTokenClaims{
+		TokenType:  "refresh_token",
+		CustomerId: c.CustomerId,
+		Accounts:   c.Accounts,
+		Username:   c.Username,
+		Role:       c.Role,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(REFRESH_TOKEN_DURATION).Unix(),
+		},
+	}
 }

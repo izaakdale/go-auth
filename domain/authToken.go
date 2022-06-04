@@ -27,3 +27,16 @@ func NewAuthToken(claims AccessTokenClaims) AuthToken {
 		token: token,
 	}
 }
+
+func (t AuthToken) newRefreshToken() (string, *response.ErrorReponse) {
+	c := t.token.Claims.(AccessTokenClaims)
+	refreshClaims := c.RefreshTokenClaims()
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims)
+	signedString, err := token.SignedString([]byte(os.Getenv("HMAC_SERVER_SECRET")))
+	if err != nil {
+		logger.Error("Error signing token with env secret " + err.Error())
+		return "", response.NewUnexpectedError("Token generate failed")
+	}
+	return signedString, nil
+}
