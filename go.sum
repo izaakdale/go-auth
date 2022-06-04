@@ -9,8 +9,8 @@ github.com/go-sql-driver/mysql v1.6.0 h1:BCTh4TKNUYmOmMUcQ3IipzF5prigylS7XXjEkfC
 github.com/go-sql-driver/mysql v1.6.0/go.mod h1:DCzpHaOWr8IXmIStZouvnhqoel9Qv2LBy8hT2VhHyBg=
 github.com/gorilla/mux v1.8.0 h1:i40aqfkR1h2SlN9hojwV5ZA91wcXFOvkdNIeFDP5koI=
 github.com/gorilla/mux v1.8.0/go.mod h1:DVbg23sWSpFRCP0SfiEN6jmj59UnW/n46BH5rLB71So=
-github.com/izaakdale/utils-go v1.0.1 h1:CbIvj9tcp+CMEy35Fxlq5CZUMFpXygGxnTHtmI4MRcY=
-github.com/izaakdale/utils-go v1.0.1/go.mod h1:YfynW3RyKkZO0i2T27mT6MbcNyPEP/MNmDrW58ZpQnU=
+github.com/izaakdale/utils-go v1.0.4 h1:NS2WskL+Ln9hJ4uHC/F6dQc5kbDTZHQevHCpZQd7ROw=
+github.com/izaakdale/utils-go v1.0.4/go.mod h1:nrzTq2C5z6w0HZhHRNiudPuHjiXdobFzq5PKp9+nVOM=
 github.com/jmoiron/sqlx v1.3.5 h1:vFFPA71p1o5gAeqtEAwLU4dnX2napprKtHr7PYIcN3g=
 github.com/jmoiron/sqlx v1.3.5/go.mod h1:nRVWtLre0KfCLJvgxzCsLVMogSvQ1zNJtpYr2Ccp0mQ=
 github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORNo=

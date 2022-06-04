@@ -23,11 +23,6 @@ func (authHandler AuthHandler) Login(writer http.ResponseWriter, request *http.R
 	} else {
 		token, err := authHandler.service.Login(loginRequest)
 		if err != nil {
-			logger.Error("Error logging in")
-			err := response.ErrorReponse{
-				Code:    http.StatusUnauthorized,
-				Message: "Invalid credentials",
-			}
 			response.WriteJson(writer, err.Code, err.AsMessage())
 		} else {
 			response.WriteJson(writer, http.StatusOK, dto.TokenResponse{Token: *token})
@@ -50,7 +45,7 @@ func (authHandler AuthHandler) Verify(writer http.ResponseWriter, request *http.
 	if urlParams["token"] != "" {
 		verified, err := authHandler.service.Verify(urlParams)
 		if err != nil {
-			logger.Error("Error verifying in service ")
+			logger.Error("Error verifying in service")
 		}
 		response.WriteJson(writer, http.StatusOK, dto.VerifyReponse{
 			IsAuthorized: verified,

@@ -29,7 +29,7 @@ func (authRepoDb AuthRepoDb) FindBy(username string, password string) (*Login, *
 	err := authRepoDb.client.Get(&login, sqlQuery, username, password)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, response.NewValidationError("Invalid credentials")
+			return nil, response.NewAuthenticationError("Invalid credentials")
 		} else {
 			log.Println("Error while verifying login request " + err.Error())
 			return nil, response.NewUnexpectedError("Unexpected DB Error")

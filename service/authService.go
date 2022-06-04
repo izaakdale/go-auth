@@ -72,7 +72,7 @@ func jwtTokenFromString(tokenString string) (*jwt.Token, *response.ErrorReponse)
 	})
 	if err != nil {
 		logger.Error("Error parsing token: " + err.Error())
-		return nil, response.NewValidationError("Invalid token")
+		return nil, response.NewUnexpectedError("Invalid token")
 	}
 	return token, nil
 }
