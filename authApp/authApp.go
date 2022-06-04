@@ -28,6 +28,7 @@ func Start() {
 
 	router.HandleFunc("/auth/login", authHandler.Login).Methods(http.MethodPost)
 	router.HandleFunc("/auth/register", authHandler.Register).Methods(http.MethodPost)
+	router.HandleFunc("/auth/refresh", authHandler.Refresh).Methods(http.MethodPost)
 	router.HandleFunc("/auth/verify", authHandler.Verify).Methods(http.MethodGet)
 
 	address := os.Getenv("SERVER_ADDRESS")

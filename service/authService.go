@@ -14,6 +14,7 @@ import (
 type AuthService interface {
 	Login(request dto.LoginRequest) (*dto.LoginResponse, *response.ErrorReponse)
 	Verify(urlParams map[string]string) *response.ErrorReponse
+	Refresh(req dto.RefreshTokenRequest) (*dto.LoginResponse, *response.ErrorReponse)
 }
 type DefaultAuthService struct {
 	repo            domain.AuthRepoDb
@@ -53,6 +54,29 @@ func (authService DefaultAuthService) Login(request dto.LoginRequest) (*dto.Logi
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}, nil
+}
+
+func (authService DefaultAuthService) Refresh(req dto.RefreshTokenRequest) (*dto.LoginResponse, *response.ErrorReponse) {
+	if vErr := req.IsAccessTokenValid(); vErr != nil {
+		if vErr.Errors == jwt.ValidationErrorExpired {
+			// continue to refresh
+			var rErr *response.ErrorReponse
+			rErr = authService.repo.RefreshTokenExists(req.RefreshToken)
+			if rErr != nil {
+				return nil, rErr
+			}
+			// generate authtoken
+			var accessToken string
+			if accessToken, rErr = domain.NewAccessTokenFromRefreshToken(req.RefreshToken); rErr != nil {
+				return nil, rErr
+			}
+			return &dto.LoginResponse{
+				AccessToken: accessToken,
+			}, nil
+		}
+		return nil, response.NewAuthenticationError("Invalid token")
+	}
+	return nil, response.NewAuthenticationError("Cannot regenerate new access token before old one expires")
 }
 
 func (authService DefaultAuthService) Verify(urlParams map[string]string) *response.ErrorReponse {

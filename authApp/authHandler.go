@@ -34,6 +34,22 @@ func (authHandler AuthHandler) Register(writer http.ResponseWriter, request *htt
 	// register functionality
 }
 
+func (authHandler AuthHandler) Refresh(writer http.ResponseWriter, request *http.Request) {
+
+	var refreshRequest dto.RefreshTokenRequest
+	if err := json.NewDecoder(request.Body).Decode(&refreshRequest); err != nil {
+		logger.Error("Error decoding login request")
+		response.WriteJson(writer, http.StatusBadRequest, nil)
+	} else {
+		loginResponse, err := authHandler.service.Refresh(refreshRequest)
+		if err != nil {
+			response.WriteJson(writer, err.Code, err.AsMessage())
+		} else {
+			response.WriteJson(writer, http.StatusOK, loginResponse)
+		}
+	}
+}
+
 func (authHandler AuthHandler) Verify(writer http.ResponseWriter, request *http.Request) {
 
 	urlParams := make(map[string]string)

@@ -57,3 +57,20 @@ func (authRepoDb AuthRepoDb) GenerateAndSaveRefreshToken(authT AuthToken) (strin
 	return refreshToken, nil
 
 }
+
+func (authRepoDb AuthRepoDb) RefreshTokenExists(refreshToken string) *response.ErrorReponse {
+	sqlStatement := "SELECT refresh_token FROM refresh_token_store WHERE refresh_token=?"
+
+	var token string
+	err := authRepoDb.client.Get(&token, sqlStatement, refreshToken)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return response.NewAuthenticationError("Refresh token not registered in store")
+		} else {
+			logger.Error("Unexpected DB Error: " + err.Error())
+			return response.NewUnexpectedError("Unexpected DB Error")
+		}
+	}
+	return nil
+
+}
