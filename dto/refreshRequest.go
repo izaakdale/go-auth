@@ -21,7 +21,7 @@ func (r RefreshTokenRequest) IsAccessTokenValid() *jwt.ValidationError {
 	if err != nil {
 		logger.Error("Error while parsing token " + err.Error())
 		var vErr *jwt.ValidationError
-		if errors.As(err, vErr) {
+		if errors.As(err, &vErr) {
 			return vErr
 		}
 	}
