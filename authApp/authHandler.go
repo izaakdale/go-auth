@@ -43,12 +43,22 @@ func (authHandler AuthHandler) Verify(writer http.ResponseWriter, request *http.
 	}
 
 	if urlParams["token"] != "" {
-		verified, err := authHandler.service.Verify(urlParams)
+		err := authHandler.service.Verify(urlParams)
 		if err != nil {
 			logger.Error("Error verifying in service")
+			response.WriteJson(writer, err.Code, dto.NotVerifiedReponse{
+				IsAuthorized: false,
+				Message:      err.Message,
+			})
+		} else {
+			response.WriteJson(writer, http.StatusOK, dto.VerifiedReponse{
+				IsAuthorized: true,
+			})
 		}
-		response.WriteJson(writer, http.StatusOK, dto.VerifyReponse{
-			IsAuthorized: verified,
+	} else {
+		response.WriteJson(writer, http.StatusForbidden, dto.NotVerifiedReponse{
+			IsAuthorized: false,
+			Message:      "Missing token",
 		})
 	}
 

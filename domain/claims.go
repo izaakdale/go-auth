@@ -4,14 +4,6 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-type Claims struct {
-	CustomerId string   `json:"customer_id"`
-	Accounts   []string `json:"accounts"`
-	Username   string   `json:"username"`
-	Expiry     int64    `json:"expiry"`
-	Role       string   `json:"role"`
-}
-
 type AccessTokenClaims struct {
 	CustomerId string   `json:"customer_id"`
 	Accounts   []string `json:"accounts"`
